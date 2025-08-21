@@ -140,8 +140,8 @@ document.getElementById('employmentForm').addEventListener('submit', async funct
         };
 
         // ===============================================================
-        // تم وضع الرابط الخاص بك هنا
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbv5VgAkqabCfK9rvjnZ61ZO_Sk09IEqwQIHTVNbl6WB1T-4_A9xZ-0fdSI4FABDMgKJ/exec'; 
+        // تم وضع الرابط الجديد الخاص بك هنا
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwaxBu5gTs3uiElRDGfWw2Zu7RD9oYKZU6aJQyc0K1V-FSbQdjoL3mLYV7mz2Dnhtdg/exec'; 
         // ===============================================================
 
         await fetch(WEB_APP_URL, {
