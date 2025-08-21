@@ -1,104 +1,152 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>صفحة التوظيف</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js"></script>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="text/babel">
-    function JobApplicationForm() {
-      const [formData, setFormData] = React.useState({
-        name: '',
-        job: '',
-        phone: '',
-        qualification: '',
-        experience: '',
-        birthDate: '',
-        availability: 'yes',
-        lastSalary: '',
-        expectedSalary: '',
-        cv: null
-      });
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  direction: rtl;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
 
-      const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-      };
+body.light {
+  background: linear-gradient(135deg, #f0f4ff 0%, #e0eaff 100%);
+  color: #333;
+}
 
-      const handleFileChange = (e) => {
-        setFormData({ ...formData, cv: e.target.files[0] });
-      };
+body.dark {
+  background: linear-gradient(135deg, #1e1e1e 0%, #2c2c2c 100%);
+  color: #f0f0f0;
+}
 
-      const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log('Form Data:', formData);
-        alert('تم إرسال طلبك بنجاح!');
-      };
+.container {
+  max-width: 700px;
+  width: 90%;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeInContainer 1s ease-out;
+}
 
-      return (
-        <div className="container">
-          <h1>طلب توظيف</h1>
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>الاسم</label>
-              <input type="text" name="name" value={formData.name} onChange={handleInputChange} required />
-            </div>
-            <div className="form-group">
-              <label>الوظيفة المطلوبة</label>
-              <input type="text" name="job" value={formData.job} onChange={handleInputChange} required />
-            </div>
-            <div className="form-group">
-              <label>رقم الهاتف</label>
-              <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required />
-            </div>
-            <div className="form-group">
-              <label>المؤهل الدراسي</label>
-              <input type="text" name="qualification" value={formData.qualification} onChange={handleInputChange} required />
-            </div>
-            <div className="form-group">
-              <label>الخبرة (إن وجدت)</label>
-              <textarea name="experience" value={formData.experience} onChange={handleInputChange} />
-            </div>
-            <div className="form-group">
-              <label>تاريخ الميلاد</label>
-              <input type="date" name="birthDate" value={formData.birthDate} onChange={handleInputChange} required />
-            </div>
-            <div className="form-group">
-              <label>هل أنت متفرغ؟</label>
-              <select name="availability" value={formData.availability} onChange={handleInputChange} required>
-                <option value="yes">نعم</option>
-                <option value="no">لا</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label>آخر راتب حصلت عليه</label>
-              <input type="number" name="lastSalary" value={formData.lastSalary} onChange={handleInputChange} />
-            </div>
-            <div className="form-group">
-              <label>الراتب المتوقع</label>
-              <input type="number" name="expectedSalary" value={formData.expectedSalary} onChange={handleInputChange} required />
-            </div>
-            <div className="form-group">
-              <label>تحميل السيرة الذاتية</label>
-              <input type="file" name="cv" onChange={handleFileChange} accept=".pdf,.doc,.docx" required />
-            </div>
-            <button type="submit">إرسال الطلب</button>
-          </form>
-          <div className="address">
-            <p>للتقديم مباشرة:</p>
-            <p>مدينة بركة السبع، فيلا مول 2، الدور الرابع</p>
-          </div>
-        </div>
-      );
-    }
+body.light .container {
+  background-color: #ffffff;
+}
 
-    ReactDOM.render(<JobApplicationForm />, document.getElementById('root'));
-  </script>
-</body>
-</html>
+body.dark .container {
+  background-color: #333333;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2.5rem;
+  animation: fadeIn 0.8s ease-in;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  animation: fadeIn 0.5s ease-in;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  animation: slideUp 0.5s ease-out;
+}
+
+body.light input, body.light select, body.light textarea {
+  border-color: #ccc;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+body.dark input, body.dark select, body.dark textarea {
+  border-color: #555;
+  background-color: #444;
+  color: #f0f0f0;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+  transform: scale(1.02);
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+}
+
+.address {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 1.1rem;
+  animation: fadeIn 1s ease-in;
+}
+
+.toggle-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  color: #333;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.toggle-button:hover {
+  transform: rotate(360deg);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInContainer {
+  from { opacity: 0; scale: 0.95; }
+  to { opacity: 1; scale: 1; }
+}
+
+.animate-fadeIn { animation: fadeIn 0.8s ease-out; }
+.animate-slideUp { animation: slideUp 0.6s ease-out; }
+.animate-hover:hover { transform: scale(1.05); transition: transform 0.3s ease; }
+.animate-focus:focus { animation: pulse 1s infinite; }
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+}
