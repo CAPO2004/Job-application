@@ -13,7 +13,6 @@ function toggleTheme() {
         localStorage.setItem('theme', 'light');
     }
     
-    // Add rotation animation
     themeIcon.style.transform = 'rotate(360deg)';
     setTimeout(() => {
         themeIcon.style.transform = 'rotate(0deg)';
@@ -33,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
         themeIcon.className = 'fas fa-moon theme-icon';
     }
     
-    // Show welcome message
     showWelcomeMessage();
 });
 
@@ -42,8 +40,6 @@ function showWelcomeMessage() {
     const welcomeNotification = document.getElementById('welcomeNotification');
     if (welcomeNotification) {
         welcomeNotification.style.display = 'block';
-        
-        // Auto hide after 5 seconds
         setTimeout(() => {
             hideWelcome();
         }, 5000);
@@ -88,59 +84,92 @@ document.getElementById('cvFile').addEventListener('change', function(e) {
 });
 
 // Form validation and submission
-document.getElementById('employmentForm').addEventListener('submit', function(e) {
+document.getElementById('employmentForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
+    const form = this;
+    const submitButton = form.querySelector('.submit-btn');
+    const originalButtonText = submitButton.innerHTML;
+
     let isValid = true;
-    const inputs = this.querySelectorAll('input[required], select[required]');
-    const errorDivs = this.querySelectorAll('.error');
+    const requiredInputs = form.querySelectorAll('[required]');
     
-    // Reset errors
-    errorDivs.forEach(error => error.style.display = 'none');
-    inputs.forEach(input => input.classList.remove('input-error'));
-    
-    // Validate inputs
-    inputs.forEach(input => {
-        if (!input.value.trim()) {
+    requiredInputs.forEach(input => {
+        input.classList.remove('input-error');
+        const errorDiv = input.closest('.form-group').querySelector('.error');
+        if (errorDiv) errorDiv.style.display = 'none';
+
+        if (!input.value.trim() || (input.type === 'file' && input.files.length === 0)) {
             isValid = false;
             input.classList.add('input-error');
-            const error = input.nextElementSibling;
-            if (error && error.classList.contains('error')) {
-                error.style.display = 'block';
-            }
+            if (errorDiv) errorDiv.style.display = 'block';
         }
     });
-    
-    // Validate file upload
-    const fileInput = document.getElementById('cvFile');
-    if (!fileInput.files.length) {
-        isValid = false;
-        fileInput.classList.add('input-error');
-        const error = fileInput.closest('.form-group').querySelector('.error');
-        if (error) error.style.display = 'block';
+
+    if (!isValid) {
+        alert('يرجى ملء جميع الحقول المطلوبة بشكل صحيح');
+        return;
     }
-    
-    if (isValid) {
-        // Show success message
-        alert('تم استلام طلبك بنجاح! سنقوم بالاتصال بك خلال 24 ساعة.');
-        this.reset();
-        document.getElementById('fileName').style.display = 'none';
+
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+
+    try {
+        const cvFile = document.getElementById('cvFile').files[0];
+        const fileFormData = new FormData();
+        fileFormData.append('file', cvFile);
+
+        const fileUploadResponse = await fetch('https://file.io', { method: 'POST', body: fileFormData } );
+        if (!fileUploadResponse.ok) throw new Error('فشل رفع السيرة الذاتية.');
         
-        // Reset checkbox
+        const fileUploadResult = await fileUploadResponse.json();
+        const cvFileLink = fileUploadResult.link;
+
+        const formData = new FormData(form);
+        const data = {
+            name: formData.get('name'),
+            position: formData.get('position'),
+            phone: formData.get('phone'),
+            birth_date: formData.get('birth_date'),
+            education: formData.get('education'),
+            experience: formData.get('experience'),
+            last_salary: formData.get('last_salary'),
+            expected_salary: formData.get('expected_salary'),
+            is_available: document.querySelector('.checkbox').classList.contains('checked') ? 'نعم' : 'لا',
+            cv_file_link: cvFileLink
+        };
+
+        // ===============================================================
+        // تم وضع الرابط الخاص بك هنا
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbv5VgAkqabCfK9rvjnZ61ZO_Sk09IEqwQIHTVNbl6WB1T-4_A9xZ-0fdSI4FABDMgKJ/exec'; 
+        // ===============================================================
+
+        await fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data ),
+            redirect: 'follow'
+        });
+
+        alert('تم استلام طلبك بنجاح! سنقوم بالاتصال بك خلال 24 ساعة.');
+        form.reset();
+        document.getElementById('fileName').style.display = 'none';
         const checkbox = document.querySelector('.checkbox');
         if (checkbox) checkbox.classList.remove('checked');
-    } else {
-        // Show error message
-        alert('يرجى ملء جميع الحقول المطلوبة بشكل صحيح');
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('عذراً، حدث خطأ. يرجى المحاولة مرة أخرى. ' + error.message);
+    } finally {
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
     }
 });
 
 // Add animation to form elements on scroll
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
-
+const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -149,32 +178,22 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Observe form groups
 document.addEventListener('DOMContentLoaded', function() {
     const formGroups = document.querySelectorAll('.form-group');
-    formGroups.forEach(group => {
-        observer.observe(group);
-    });
+    formGroups.forEach(group => { observer.observe(group); });
+    createFloatingElements();
 });
 
-// Add floating animation to elements
+// Floating elements and other animations...
 function createFloatingElements() {
     const container = document.querySelector('.floating-elements');
     if (!container) return;
     
     const elements = [
-        '<i class="fas fa-file-alt"></i>',
-        '<i class="fas fa-briefcase"></i>',
-        '<i class="fas fa-user-tie"></i>',
-        '<i class="fas fa-chart-bar"></i>',
-        '<i class="fas fa-trophy"></i>',
-        '<i class="fas fa-dollar-sign"></i>',
-        '<i class="fas fa-graduation-cap"></i>',
-        '<i class="fas fa-handshake"></i>',
-        '<i class="fas fa-building"></i>',
-        '<i class="fas fa-clock"></i>',
-        '<i class="fas fa-laptop"></i>',
-        '<i class="fas fa-phone"></i>'
+        '<i class="fas fa-file-alt"></i>', '<i class="fas fa-briefcase"></i>', '<i class="fas fa-user-tie"></i>',
+        '<i class="fas fa-chart-bar"></i>', '<i class="fas fa-trophy"></i>', '<i class="fas fa-dollar-sign"></i>',
+        '<i class="fas fa-graduation-cap"></i>', '<i class="fas fa-handshake"></i>', '<i class="fas fa-building"></i>',
+        '<i class="fas fa-clock"></i>', '<i class="fas fa-laptop"></i>', '<i class="fas fa-phone"></i>'
     ];
     
     setInterval(() => {
@@ -186,7 +205,6 @@ function createFloatingElements() {
             element.style.animationDuration = (Math.random() * 10 + 10) + 's';
             container.appendChild(element);
             
-            // Remove element after animation
             setTimeout(() => {
                 if (element.parentNode) {
                     element.parentNode.removeChild(element);
@@ -196,25 +214,8 @@ function createFloatingElements() {
     }, 3000);
 }
 
-// Start floating elements animation
-document.addEventListener("DOMContentLoaded", createFloatingElements);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Add particle effect on form interaction
+// Particle effect on form interaction
+document.addEventListener('DOMContentLoaded', () => {
     const createParticle = (x, y) => {
         const particle = document.createElement("div");
         particle.style.position = "fixed";
@@ -237,23 +238,15 @@ document.addEventListener("DOMContentLoaded", createFloatingElements);
         }, 1000);
     };
 
-    // Add particle animation CSS
     const particleStyle = document.createElement("style");
     particleStyle.textContent = `
         @keyframes particleFloat {
-            0% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-50px) scale(0);
-            }
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-50px) scale(0); }
         }
     `;
     document.head.appendChild(particleStyle);
 
-    // Add particles on input focus
     const inputs = document.querySelectorAll(".form-input, .form-select, .upload-area");
     inputs.forEach(input => {
         input.addEventListener("focus", (e) => {
@@ -268,5 +261,4 @@ document.addEventListener("DOMContentLoaded", createFloatingElements);
             }
         });
     });
-
-
+});
