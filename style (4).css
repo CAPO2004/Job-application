@@ -1,0 +1,113 @@
+/* تنسيق عام للصفحة */
+body {
+  background-color: #f3f4f6;
+  font-family: 'Tajawal', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  direction: rtl;
+}
+
+/* تنسيق الحاوية الرئيسية */
+.container {
+  max-width: 700px;
+  width: 100%;
+  margin: 20px;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* تنسيق العنوان */
+h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* تنسيق الحقول */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #1f2937;
+  background-color: #f9fafb;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* تنسيق حقل تحميل الملف */
+.form-group input[type="file"] {
+  padding: 0.5rem;
+}
+
+/* تنسيق زر الإرسال */
+button[type="submit"] {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+  background-color: #1e40af;
+}
+
+/* تنسيق العنوان في الأسفل */
+.address {
+  text-align: center;
+  margin-top: 2rem;
+  color: #374151;
+}
+
+.address p {
+  margin: 0.25rem 0;
+  font-size: 1rem;
+}
+
+/* استجابة للشاشات الصغيرة */
+@media (max-width: 640px) {
+  .container {
+    margin: 10px;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}
