@@ -11,7 +11,7 @@
     <!-- Welcome Notification -->
     <div id="welcomeNotification" class="welcome-notification">
         <div class="notification-content">
-            <i class="fas fa-times close-btn" onclick="hideWelcome()"></i>
+            <i class="fas fa-times close-btn" onclick="hideWelcome( )"></i>
             <h3>مرحباً بك!</h3>
             <p>نحن سعداء لاهتمامك بالانضمام إلى فريقنا</p>
         </div>
@@ -154,7 +154,9 @@
         <div class="floating-element"><i class="fas fa-clock"></i></div>
     </div>
 
-    
-    <script src="script.js"></script>
+    <!-- **التعديل الهام لمنع التخزين المؤقت (Cache Busting)** -->
+    <script>
+        document.write('<script src="script.js?v=' + new Date().getTime() + '"><\/script>');
+    </script>
 </body>
 </html>
