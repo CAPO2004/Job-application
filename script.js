@@ -33,6 +33,13 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     
     showWelcomeMessage();
+    
+    // Add click listener to upload-area to trigger file input
+    const uploadArea = document.querySelector(".upload-area");
+    const cvFileInput = document.getElementById("cvFile");
+    if (uploadArea && cvFileInput) {
+        uploadArea.addEventListener("click", () => cvFileInput.click());
+    }
 });
 
 // Welcome notification functionality
@@ -67,23 +74,17 @@ document.getElementById("cvFile").addEventListener("change", function(e) {
     const fileNameSpan = document.getElementById("fileName");
     const file = e.target.files[0];
     if (file) {
+        // Check file size (e.g., 5MB limit)
+        if (file.size > 5 * 1024 * 1024) {
+            alert("حجم الملف كبير جداً. الحد الأقصى هو 5MB.");
+            e.target.value = ""; // Reset file input
+            fileNameSpan.style.display = "none";
+            return;
+        }
         fileNameSpan.textContent = `تم اختيار الملف: ${file.name}`;
         fileNameSpan.style.display = "block";
     } else {
-        fileNameSpan.textContent = "";
         fileNameSpan.style.display = "none";
-    }
-});
-
-// Add click listener to upload-area to trigger file input
-document.addEventListener("DOMContentLoaded", function() {
-    const uploadArea = document.querySelector(".upload-area");
-    const cvFileInput = document.getElementById("cvFile");
-
-    if (uploadArea && cvFileInput) {
-        uploadArea.addEventListener("click", function() {
-            cvFileInput.click(); // Programmatically click the hidden file input
-        });
     }
 });
 
@@ -97,7 +98,7 @@ document.getElementById("employmentForm").addEventListener("submit", async funct
 
     // --- Validation ---
     let isValid = true;
-    const requiredInputs = form.querySelectorAll("input[required]:not([type=\'file\']), select[required]");
+    const requiredInputs = form.querySelectorAll("input[required]:not([type='file']), select[required]");
     const cvFile = document.getElementById("cvFile");
 
     requiredInputs.forEach(input => {
@@ -112,7 +113,6 @@ document.getElementById("employmentForm").addEventListener("submit", async funct
         }
     });
 
-    // Validate CV file
     if (!cvFile.files.length) {
         isValid = false;
         alert("يرجى اختيار ملف السيرة الذاتية.");
@@ -123,37 +123,84 @@ document.getElementById("employmentForm").addEventListener("submit", async funct
     }
 
     submitButton.disabled = true;
-    submitButton.innerHTML = "<i class=\"fas fa-spinner fa-spin\"></i> جاري الإرسال...";
+    submitButton.innerHTML = "<i class='fas fa-spinner fa-spin'></i> جاري الإرسال...";
+
+    // --- Prepare Data ---
+    const formDataObject = {
+        action: "submitData", // Action for Apps Script
+        name: form.elements["name"].value,
+        position: form.elements["position"].value,
+        phone: form.elements["phone"].value,
+        birth_date: form.elements["birth_date"].value,
+        education: form.elements["education"].value,
+        experience: form.elements["experience"].value,
+        last_salary: form.elements["last_salary"].value,
+        expected_salary: form.elements["expected_salary"].value,
+        is_available: document.querySelector(".checkbox").classList.contains("checked") ? "نعم" : "لا",
+    };
+
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxjwqOVq1Zy31-QvZmF9zrvx7iHaed0y2Hm5c4JGEjeHYs3d26OF8pIWeVzCud7XW0W/exec";
 
     try {
-        const formData = new FormData(form);
-        
-        // Add checkbox value to formData explicitly
-        formData.append("is_available", document.querySelector(".checkbox").classList.contains("checked") ? "نعم" : "لا");
-
-        // Append the file to formData
-        if (cvFile.files.length > 0) {
-            formData.append("cv_file", cvFile.files[0]);
-        }
-
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbztL1ER-JdR7asLVpaWSPtst7jlkPKvAChDj7cgyj_J6e-N5gSxm79xHjupCoYGmk8Y/exec"; 
-
+        // --- Step 1: Submit text data and get the row number ---
         const response = await fetch(WEB_APP_URL, {
             method: "POST",
-            body: formData,
-        } );
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formDataObject ),
+            redirect: "follow"
+        });
 
         const result = await response.json();
 
-        if (result.status === "success") {
-            alert("تم استلام بياناتك والسيرة الذاتية بنجاح!");
-            form.reset();
-            document.getElementById("fileName").style.display = "none";
-            const checkbox = document.querySelector(".checkbox");
-            if (checkbox) checkbox.classList.remove("checked");
-        } else {
-            throw new Error(result.message || "حدث خطأ غير معروف.");
+        if (result.status !== "success") {
+            throw new Error(result.message || "فشل تسجيل البيانات النصية.");
         }
+
+        // --- Quick Success Message for User ---
+        alert("تم استلام بياناتك بنجاح! يتم الآن رفع السيرة الذاتية في الخلفية.");
+        
+        const rowNumber = result.row; // Get the row number from the response
+
+        // --- Step 2: Upload the file in the background ---
+        const file = cvFile.files[0];
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+
+        reader.onload = () => {
+            const fileData = reader.result.split(',');
+            const fileUploadObject = {
+                action: "uploadFile", // Different action for Apps Script
+                rowNumber: rowNumber,
+                fileContent: fileData[1],
+                mimeType: file.type,
+                fileName: file.name
+            };
+
+            // Use `fetch` again to upload the file and update the sheet
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(fileUploadObject)
+            }).then(res => res.json()).then(fileResult => {
+                if (fileResult.status === "success") {
+                    console.log("File uploaded and link added successfully:", fileResult.fileLink);
+                } else {
+                    console.error("File upload failed:", fileResult.message);
+                }
+            }).catch(err => {
+                console.error("Error during file upload:", err);
+            });
+        };
+
+        reader.onerror = () => {
+            console.error("Could not read the file for upload.");
+        };
+
+        // --- Reset Form ---
+        form.reset();
+        document.getElementById("fileName").style.display = "none";
+        const checkbox = document.querySelector(".checkbox");
+        if (checkbox) checkbox.classList.remove("checked");
 
     } catch (error) {
         console.error("Error:", error);
@@ -162,100 +209,4 @@ document.getElementById("employmentForm").addEventListener("submit", async funct
         submitButton.disabled = false;
         submitButton.innerHTML = originalButtonText;
     }
-});
-
-
-// Add animation to form elements on scroll
-const observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add("animate-slide-up");
-        }
-    });
-}, observerOptions);
-
-document.addEventListener("DOMContentLoaded", function() {
-    const formGroups = document.querySelectorAll(".form-group");
-    formGroups.forEach(group => { observer.observe(group); });
-    createFloatingElements();
-});
-
-// Floating elements and other animations...
-function createFloatingElements() {
-    const container = document.querySelector(".floating-elements");
-    if (!container) return;
-    
-    const elements = [
-        "<i class=\"fas fa-file-alt\"></i>", "<i class=\"fas fa-briefcase\"></i>", "<i class=\"fas fa-user-tie\"></i>",
-        "<i class=\"fas fa-chart-bar\"></i>", "<i class=\"fas fa-trophy\"></i>", "<i class=\"fas fa-dollar-sign\"></i>",
-        "<i class=\"fas fa-graduation-cap\"></i>", "<i class=\"fas fa-handshake\"></i>", "<i class=\"fas fa-building\"></i>",
-        "<i class=\"fas fa-clock\"></i>", "<i class=\"fas fa-laptop\"></i>", "<i class=\"fas fa-phone\"></i>"
-    ];
-    
-    setInterval(() => {
-        if (container.children.length < 12) {
-            const element = document.createElement("div");
-            element.className = "floating-element";
-            element.innerHTML = elements[Math.floor(Math.random() * elements.length)];
-            element.style.left = Math.random() * 100 + "%";
-            element.style.animationDuration = (Math.random() * 10 + 10) + "s";
-            container.appendChild(element);
-            
-            setTimeout(() => {
-                if (element.parentNode) {
-                    element.parentNode.removeChild(element);
-                }
-            }, 20000);
-        }
-    }, 3000);
-}
-
-// Particle effect on form interaction
-document.addEventListener("DOMContentLoaded", () => {
-    const createParticle = (x, y) => {
-        const particle = document.createElement("div");
-        particle.style.position = "fixed";
-        particle.style.left = x + "px";
-        particle.style.top = y + "px";
-        particle.style.width = "4px";
-        particle.style.height = "4px";
-        particle.style.background = "linear-gradient(45deg, #4facfe, #00f2fe)";
-        particle.style.borderRadius = "50%";
-        particle.style.pointerEvents = "none";
-        particle.style.zIndex = "1000";
-        particle.style.animation = "particleFloat 1s ease-out forwards";
-        
-        document.body.appendChild(particle);
-        
-        setTimeout(() => {
-            if (particle.parentNode) {
-                particle.remove();
-            }
-        }, 1000);
-    };
-
-    const particleStyle = document.createElement("style");
-    particleStyle.textContent = `
-        @keyframes particleFloat {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-50px) scale(0); }
-        }
-    `;
-    document.head.appendChild(particleStyle);
-
-    const inputs = document.querySelectorAll(".form-input, .form-select, .upload-area");
-    inputs.forEach(input => {
-        input.addEventListener("focus", (e) => {
-            const rect = e.target.getBoundingClientRect();
-            for (let i = 0; i < 5; i++) {
-                setTimeout(() => {
-                    createParticle(
-                        rect.left + Math.random() * rect.width,
-                        rect.top + Math.random() * rect.height
-                    );
-                }, i * 100);
-            }
-        });
-    });
 });
