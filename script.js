@@ -34,11 +34,25 @@ document.addEventListener("DOMContentLoaded", function() {
     
     showWelcomeMessage();
     
+    // إصلاح مشكلة رفع الملف المزدوج - إضافة فحص لمنع الأحداث المتكررة
     const uploadArea = document.querySelector(".upload-area");
     const cvFileInput = document.getElementById("cvFile");
     if (uploadArea && cvFileInput) {
-        uploadArea.addEventListener("click", () => cvFileInput.click());
+        let isClickHandled = false;
+        uploadArea.addEventListener("click", (e) => {
+            if (isClickHandled) return;
+            isClickHandled = true;
+            cvFileInput.click();
+            // إعادة تعيين الحالة بعد فترة قصيرة
+            setTimeout(() => {
+                isClickHandled = false;
+            }, 300);
+        });
     }
+
+    // إضافة تأثير الجزيئات المتوهجة
+    createFloatingElements();
+    setupParticleEffect();
 });
 
 // Welcome notification functionality
@@ -68,7 +82,7 @@ function toggleCheckbox(checkbox) {
     checkbox.classList.toggle("checked");
 }
 
-// Handle CV file selection for display
+// Handle CV file selection for display - إصلاح مشكلة الرفع المزدوج
 document.getElementById("cvFile").addEventListener("change", function(e) {
     const fileNameSpan = document.getElementById("fileName");
     const file = e.target.files[0];
@@ -86,13 +100,18 @@ document.getElementById("cvFile").addEventListener("change", function(e) {
     }
 });
 
-// Form validation and submission (Base64 VERSION)
+// Form validation and submission (Base64 VERSION) - مع إصلاح مشكلة الإرسال المزدوج
 document.getElementById("employmentForm").addEventListener("submit", function(e) {
     e.preventDefault();
     
     const form = this;
     const submitButton = form.querySelector(".submit-btn");
     const originalButtonText = submitButton.innerHTML;
+
+    // منع الإرسال المزدوج
+    if (submitButton.disabled) {
+        return;
+    }
 
     // --- Validation ---
     let isValid = true;
@@ -150,8 +169,7 @@ document.getElementById("employmentForm").addEventListener("submit", function(e)
 
             const response = await fetch(WEB_APP_URL, {
                 method: "POST",
-                body: JSON.stringify(payload ),
-                // Important: Set content type to text/plain for Apps Script to handle it
+                body: JSON.stringify(payload),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             });
 
@@ -181,3 +199,107 @@ document.getElementById("employmentForm").addEventListener("submit", function(e)
         submitButton.innerHTML = originalButtonText;
     };
 });
+
+// إضافة العناصر العائمة (Floating Elements)
+function createFloatingElements() {
+    const container = document.querySelector(".floating-elements");
+    if (!container) return;
+    
+    const elements = [
+        "<i class=\"fas fa-file-alt\"></i>", "<i class=\"fas fa-briefcase\"></i>", "<i class=\"fas fa-user-tie\"></i>",
+        "<i class=\"fas fa-chart-bar\"></i>", "<i class=\"fas fa-trophy\"></i>", "<i class=\"fas fa-dollar-sign\"></i>",
+        "<i class=\"fas fa-graduation-cap\"></i>", "<i class=\"fas fa-handshake\"></i>", "<i class=\"fas fa-building\"></i>",
+        "<i class=\"fas fa-clock\"></i>", "<i class=\"fas fa-laptop\"></i>", "<i class=\"fas fa-phone\"></i>"
+    ];
+    
+    setInterval(() => {
+        if (container.children.length < 12) {
+            const element = document.createElement("div");
+            element.className = "floating-element";
+            element.innerHTML = elements[Math.floor(Math.random() * elements.length)];
+            element.style.left = Math.random() * 100 + "%";
+            element.style.animationDuration = (Math.random() * 10 + 10) + "s";
+            container.appendChild(element);
+            
+            setTimeout(() => {
+                if (element.parentNode) {
+                    element.parentNode.removeChild(element);
+                }
+            }, 20000);
+        }
+    }, 3000);
+}
+
+// تأثير الجزيئات المتوهجة عند التفاعل مع حقول الإدخال
+function setupParticleEffect() {
+    // إنشاء دالة لإنتاج الجزيئات
+    const createParticle = (x, y) => {
+        const particle = document.createElement("div");
+        particle.style.position = "fixed";
+        particle.style.left = x + "px";
+        particle.style.top = y + "px";
+        particle.style.width = "4px";
+        particle.style.height = "4px";
+        particle.style.background = "linear-gradient(45deg, #4facfe, #00f2fe)";
+        particle.style.borderRadius = "50%";
+        particle.style.pointerEvents = "none";
+        particle.style.zIndex = "1000";
+        particle.style.animation = "particleFloat 1s ease-out forwards";
+        
+        document.body.appendChild(particle);
+        
+        setTimeout(() => {
+            if (particle.parentNode) {
+                particle.remove();
+            }
+        }, 1000);
+    };
+
+    // إضافة CSS للحركة إذا لم تكن موجودة
+    if (!document.getElementById("particle-styles")) {
+        const particleStyle = document.createElement("style");
+        particleStyle.id = "particle-styles";
+        particleStyle.textContent = `
+            @keyframes particleFloat {
+                0% { 
+                    opacity: 1; 
+                    transform: translateY(0) scale(1); 
+                }
+                100% { 
+                    opacity: 0; 
+                    transform: translateY(-50px) scale(0); 
+                }
+            }
+        `;
+        document.head.appendChild(particleStyle);
+    }
+
+    // إضافة مستمعي الأحداث لحقول الإدخال
+    const inputs = document.querySelectorAll(".form-input, .form-select, .upload-area");
+    inputs.forEach(input => {
+        input.addEventListener("focus", (e) => {
+            const rect = e.target.getBoundingClientRect();
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    createParticle(
+                        rect.left + Math.random() * rect.width,
+                        rect.top + Math.random() * rect.height
+                    );
+                }, i * 100);
+            }
+        });
+
+        // إضافة تأثير عند النقر أيضاً
+        input.addEventListener("click", (e) => {
+            const rect = e.target.getBoundingClientRect();
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    createParticle(
+                        rect.left + Math.random() * rect.width,
+                        rect.top + Math.random() * rect.height
+                    );
+                }, i * 50);
+            }
+        });
+    });
+}
