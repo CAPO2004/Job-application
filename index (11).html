@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نموذج التوظيف - بركة السبع</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Welcome Notification -->
+    <div id="welcomeNotification" class="welcome-notification">
+        <div class="notification-content">
+            <i class="fas fa-times close-btn" onclick="hideWelcome()"></i>
+            <h3>مرحباً بك!</h3>
+            <p>نحن سعداء لاهتمامك بالانضمام إلى فريقنا</p>
+        </div>
+    </div>
+
+    <!-- Fixed Theme Toggle -->
+    <div class="theme-toggle-fixed" onclick="toggleTheme()">
+        <i class="fas fa-moon theme-icon"></i>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <h1><i class="fas fa-briefcase icon"></i>نموذج طلب التوظيف</h1>
+        <p>انضم إلى فريقنا المتميز في مدينة بركة السبع</p>
+    </div>
+
+    <div class="container">
+        <!-- Application Form -->
+        <div class="card animate-slide-up">
+            <h2 class="form-title">نموذج التقديم للوظيفة</h2>
+            
+            <form id="employmentForm" novalidate>
+                <div class="grid-2">
+                    <!-- Name -->
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-user icon"></i>الاسم الكامل<span class="required">*</span></label>
+                        <input type="text" name="name" class="form-input" placeholder="أدخل اسمك الثلاثي" required>
+                        <div class="error">يرجى إدخال الاسم الكامل</div>
+                    </div>
+
+                    <!-- Position -->
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-briefcase icon"></i>الوظيفة المطلوبة<span class="required">*</span></label>
+                        <input type="text" name="position" class="form-input" placeholder="المسمى الوظيفي" required>
+                        <div class="error">يرجى إدخال الوظيفة المطلوبة</div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-phone icon"></i>رقم الهاتف<span class="required">*</span></label>
+                        <input type="tel" name="phone" class="form-input" placeholder="01XXXXXXXXX" required>
+                        <div class="error">يرجى إدخال رقم هاتف صحيح</div>
+                    </div>
+
+                    <!-- Birth Date -->
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-calendar icon"></i>تاريخ الميلاد<span class="required">*</span></label>
+                        <input type="date" name="birth_date" class="form-input" required>
+                        <div class="error">يرجى اختيار تاريخ الميلاد</div>
+                    </div>
+
+                    <!-- Education -->
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-graduation-cap icon"></i>المؤهل الدراسي<span class="required">*</span></label>
+                        <select name="education" class="form-select" required>
+                            <option value="">اختر المؤهل</option>
+                            <option value="ثانوية">ثانوية عامة</option>
+                            <option value="دبلوم">دبلوم</option>
+                            <option value="بكالوريوس">بكالوريوس</option>
+                            <option value="ماجستير">ماجستير</option>
+                            <option value="دكتوراه">دكتوراه</option>
+                        </select>
+                        <div class="error">يرجى اختيار المؤهل الدراسي</div>
+                    </div>
+
+                    <!-- Experience -->
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-chart-line icon"></i>الخبرة (سنوات)<span class="optional">(اختياري)</span></label>
+                        <input type="number" name="experience" class="form-input" placeholder="عدد سنوات الخبرة" min="0">
+                    </div>
+
+                    <!-- Last Salary -->
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-money-bill-wave icon"></i>آخر راتب<span class="optional">(اختياري)</span></label>
+                        <input type="number" name="last_salary" class="form-input" placeholder="الراتب السابق" min="0">
+                    </div>
+
+                    <!-- Expected Salary -->
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-money-check icon"></i>الراتب المتوقع<span class="required">*</span></label>
+                        <input type="number" name="expected_salary" class="form-input" placeholder="الراتب المتوقع" min="0" required>
+                        <div class="error">يرجى إدخال الراتب المتوقع</div>
+                    </div>
+                </div>
+
+                <!-- Availability -->
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <div class="checkbox" onclick="toggleCheckbox(this)"></div>
+                        <label class="form-label"><i class="fas fa-user-clock icon"></i>هل أنت متفرغ للعمل؟</label>
+                    </div>
+                </div>
+
+                <!-- CV Upload -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-file-pdf icon"></i>تحميل السيرة الذاتية
+                        <span class="required">*</span>
+                    </label>
+                    <div class="upload-area" style="position: relative;">
+                        <i class="fas fa-cloud-arrow-up fa-2x upload-icon"></i>
+                        <p>انقر لرفع الملف أو اسحب وأفلت</p>
+                        <p class="upload-info">PDF فقط - الحد الأقصى 5MB</p>
+                        <input type="file" id="cvFile" name="cv_file" accept=".pdf" required style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+                    </div>
+                    <div id="fileName" class="file-name" style="display: none;">
+                        <i class="fas fa-check-circle"></i> تم اختيار الملف
+                    </div>
+                    <div class="error">يرجى رفع السيرة الذاتية</div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane icon"></i>تقديم الطلب
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer with Direct Application Info -->
+    <footer class="footer">
+        <div class="footer-content">
+            <h3><i class="fas fa-map-marker-alt icon"></i>للتقديم مباشر</h3>
+            <p>مدينة بركة السبع - فيلا مول 2 - الدور الرابع</p>
+            <p>مفتوح من الساعة 9 صباحاً حتى 5 مساءً</p>
+        </div>
+    </footer>
+
+    <!-- Floating Elements -->
+    <div class="floating-elements">
+        <div class="floating-element"><i class="fas fa-file-alt"></i></div>
+        <div class="floating-element"><i class="fas fa-briefcase"></i></div>
+        <div class="floating-element"><i class="fas fa-user-tie"></i></div>
+        <div class="floating-element"><i class="fas fa-chart-bar"></i></div>
+        <div class="floating-element"><i class="fas fa-trophy"></i></div>
+        <div class="floating-element"><i class="fas fa-dollar-sign"></i></div>
+        <div class="floating-element"><i class="fas fa-graduation-cap"></i></div>
+        <div class="floating-element"><i class="fas fa-handshake"></i></div>
+        <div class="floating-element"><i class="fas fa-building"></i></div>
+        <div class="floating-element"><i class="fas fa-clock"></i></div>
+    </div>
+
+    
+    <script src="script.js"></script>
+</body>
+</html>
+
+
