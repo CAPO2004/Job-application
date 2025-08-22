@@ -124,22 +124,19 @@ document.getElementById("employmentForm").addEventListener("submit", async funct
     submitButton.innerHTML = "<i class='fas fa-spinner fa-spin'></i> جاري الإرسال...";
 
     try {
-        const formData = new FormData(form); // يجمع كل الحقول النصية
+        const formData = new FormData(form);
         
-        // **التعديل المهم لضمان إضافة الملف**
-        // نحذف أي نسخة قديمة من الملف ونضيفه مجدداً بشكل صريح
         formData.delete('cv_file'); 
         formData.append('cv_file', cvFile.files[0]); 
 
-        // نضيف قيمة الـ checkbox يدوياً لأنها ليست حقل إدخال قياسي
         formData.append("is_available", document.querySelector(".checkbox").classList.contains("checked") ? "نعم" : "لا");
         
+        // **تم وضع الرابط الجديد والصحيح هنا**
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwdP4BWHLNVNIORQmJMQrbC817pFRfUHn0E5OUJVmo9gnyPP2JdnsEtSmzE-cidRIU/exec";
 
         const response = await fetch(WEB_APP_URL, {
             method: "POST",
             body: formData,
-            // لا تضع أي headers هنا، المتصفح يحددها تلقائياً مع FormData
         } );
 
         const result = await response.json();
@@ -150,7 +147,6 @@ document.getElementById("employmentForm").addEventListener("submit", async funct
             document.getElementById("fileName").style.display = "none";
             document.querySelector(".checkbox")?.classList.remove("checked");
         } else {
-            // اعرض رسالة الخطأ القادمة من الخادم مباشرةً
             throw new Error(result.message || "حدث خطأ غير معروف من الخادم.");
         }
 
