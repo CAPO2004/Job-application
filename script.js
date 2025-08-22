@@ -83,19 +83,17 @@ document.getElementById('cvFile').addEventListener('change', function(e) {
     }
 });
 
-// =======================================================================
-// Form submission - NEW AND IMPROVED VERSION
-// =======================================================================
-document.getElementById('employmentForm').addEventListener('submit', function(e) {
+// Form validation and submission
+document.getElementById('employmentForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     const form = this;
     const submitButton = form.querySelector('.submit-btn');
     const originalButtonText = submitButton.innerHTML;
 
-    // --- Validation ---
     let isValid = true;
     const requiredInputs = form.querySelectorAll('[required]');
+    
     requiredInputs.forEach(input => {
         input.classList.remove('input-error');
         const errorDiv = input.closest('.form-group').querySelector('.error');
@@ -116,73 +114,59 @@ document.getElementById('employmentForm').addEventListener('submit', function(e)
     submitButton.disabled = true;
     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
 
-    // --- Step 1: Upload the file to file.io ---
-    const cvFile = document.getElementById('cvFile').files[0];
-    const fileFormData = new FormData();
-    fileFormData.append('file', cvFile);
+    try {
+        const cvFile = document.getElementById('cvFile').files[0];
+        const fileFormData = new FormData();
+        fileFormData.append('file', cvFile);
 
-    fetch('https://file.io', { method: 'POST', body: fileFormData } )
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('فشل رفع السيرة الذاتية. حاول مرة أخرى.');
-            }
-            return response.json();
-        })
-        .then(fileData => {
-            // --- Step 2: Prepare form data with the file link ---
-            const formData = new FormData(form);
-            const data = {
-                name: formData.get('name'),
-                position: formData.get('position'),
-                phone: formData.get('phone'),
-                birth_date: formData.get('birth_date'),
-                education: formData.get('education'),
-                experience: formData.get('experience'),
-                last_salary: formData.get('last_salary'),
-                expected_salary: formData.get('expected_salary'),
-                is_available: document.querySelector('.checkbox').classList.contains('checked') ? 'نعم' : 'لا',
-                cv_file_link: fileData.link // Link from file.io
-            };
+        const fileUploadResponse = await fetch('https://file.io', { method: 'POST', body: fileFormData } );
+        if (!fileUploadResponse.ok) throw new Error('فشل رفع السيرة الذاتية.');
+        
+        const fileUploadResult = await fileUploadResponse.json();
+        const cvFileLink = fileUploadResult.link;
 
-            // --- Step 3: Send data to Google Apps Script ---
-            const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwaxBu5gTs3uiElRDGfWw2Zu7RD9oYKZU6aJQyc0K1V-FSbQdjoL3mLYV7mz2Dnhtdg/exec';
-            
-            // Using XMLHttpRequest for better compatibility
-            const xhr = new XMLHttpRequest( );
-            xhr.open('POST', WEB_APP_URL);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) { // Request is done
-                    // This part will run regardless of success or error, which is fine for no-cors
-                    alert('تم استلام طلبك بنجاح! سنقوم بالاتصال بك خلال 24 ساعة.');
-                    form.reset();
-                    document.getElementById('fileName').style.display = 'none';
-                    const checkbox = document.querySelector('.checkbox');
-                    if (checkbox) checkbox.classList.remove('checked');
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = originalButtonText;
-                }
-            };
-            
-            // We need to encode the data differently for this method
-            const encodedData = Object.keys(data).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key])).join('&');
-            
-            // We send the data to a simple redirect proxy to handle the request
-            // This is a common technique to bypass 'no-cors' issues
-            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-            xhr.send(JSON.stringify(data )); // Send as JSON string
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('عذراً، حدث خطأ. يرجى المحاولة مرة أخرى. ' + error.message);
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalButtonText;
+        const formData = new FormData(form);
+        const data = {
+            name: formData.get('name'),
+            position: formData.get('position'),
+            phone: formData.get('phone'),
+            birth_date: formData.get('birth_date'),
+            education: formData.get('education'),
+            experience: formData.get('experience'),
+            last_salary: formData.get('last_salary'),
+            expected_salary: formData.get('expected_salary'),
+            is_available: document.querySelector('.checkbox').classList.contains('checked') ? 'نعم' : 'لا',
+            cv_file_link: cvFileLink
+        };
+
+        // ===============================================================
+        // تم وضع الرابط الأخير والنهائي الخاص بك هنا
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxEbCCNXImtXqSgRAsviRXO8FdAViywCdZKcz7YQUm2yyMzIapN-g0fibZCHypvLvWo/exec'; 
+        // ===============================================================
+
+        await fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data ),
+            redirect: 'follow'
         });
+
+        alert('تم استلام طلبك بنجاح! سنقوم بالاتصال بك خلال 24 ساعة.');
+        form.reset();
+        document.getElementById('fileName').style.display = 'none';
+        const checkbox = document.querySelector('.checkbox');
+        if (checkbox) checkbox.classList.remove('checked');
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('عذراً، حدث خطأ. يرجى المحاولة مرة أخرى. ' + error.message);
+    } finally {
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
+    }
 });
-
-
-// --- All other functions remain the same ---
 
 // Add animation to form elements on scroll
 const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
