@@ -34,25 +34,39 @@ document.addEventListener("DOMContentLoaded", function() {
     
     showWelcomeMessage();
     
-    // إصلاح مشكلة رفع الملف المزدوج - إضافة فحص لمنع الأحداث المتكررة
+    // إصلاح مشكلة رفع الملف المزدوج - حل جذري
     const uploadArea = document.querySelector(".upload-area");
     const cvFileInput = document.getElementById("cvFile");
     if (uploadArea && cvFileInput) {
-        let isClickHandled = false;
+        let isProcessing = false;
         uploadArea.addEventListener("click", (e) => {
-            if (isClickHandled) return;
-            isClickHandled = true;
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            // منع الحدث الافتراضي
+            e.preventDefault();
+            e.stopPropagation();
+            
             cvFileInput.click();
+            
             // إعادة تعيين الحالة بعد فترة قصيرة
             setTimeout(() => {
-                isClickHandled = false;
-            }, 300);
+                isProcessing = false;
+            }, 500);
+        });
+        
+        // منع النقر المزدوج على input نفسه
+        cvFileInput.addEventListener("click", (e) => {
+            e.stopPropagation();
         });
     }
 
     // إضافة تأثير الجزيئات المتوهجة
     createFloatingElements();
     setupParticleEffect();
+    
+    // إنشاء رسالة النجاح المخصصة
+    createSuccessModal();
 });
 
 // Welcome notification functionality
@@ -82,7 +96,7 @@ function toggleCheckbox(checkbox) {
     checkbox.classList.toggle("checked");
 }
 
-// Handle CV file selection for display - إصلاح مشكلة الرفع المزدوج
+// Handle CV file selection for display
 document.getElementById("cvFile").addEventListener("change", function(e) {
     const fileNameSpan = document.getElementById("fileName");
     const file = e.target.files[0];
@@ -100,7 +114,7 @@ document.getElementById("cvFile").addEventListener("change", function(e) {
     }
 });
 
-// Form validation and submission (Base64 VERSION) - مع إصلاح مشكلة الإرسال المزدوج
+// Form validation and submission (Base64 VERSION)
 document.getElementById("employmentForm").addEventListener("submit", function(e) {
     e.preventDefault();
     
@@ -176,7 +190,7 @@ document.getElementById("employmentForm").addEventListener("submit", function(e)
             const result = await response.json();
 
             if (result.status === "success") {
-                alert("تم استلام بياناتك والسيرة الذاتية بنجاح!");
+                showCustomSuccessMessage(); // استدعاء رسالة النجاح المخصصة
                 form.reset();
                 document.getElementById("fileName").style.display = "none";
                 document.querySelector(".checkbox")?.classList.remove("checked");
@@ -199,6 +213,159 @@ document.getElementById("employmentForm").addEventListener("submit", function(e)
         submitButton.innerHTML = originalButtonText;
     };
 });
+
+// إنشاء رسالة النجاح المخصصة
+function createSuccessModal() {
+    const modalHTML = `
+        <div id="successModal" class="success-modal">
+            <div class="success-modal-content">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3>تم الإرسال بنجاح!</h3>
+                <p>شكراً لك على تقديم طلب التوظيف</p>
+                <p>سيتم مراجعة بياناتك والتواصل معك قريباً</p>
+                <button onclick="hideCustomSuccessMessage()" class="success-btn">
+                    <i class="fas fa-thumbs-up"></i> ممتاز
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // إضافة CSS للرسالة المخصصة
+    const modalStyles = `
+        <style>
+        .success-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .success-modal.show {
+            opacity: 1;
+        }
+        
+        .success-modal-content {
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .success-modal.show .success-modal-content {
+            transform: scale(1);
+        }
+        
+        .success-modal-content::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: bounce 0.6s ease-out;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+        
+        .success-modal-content h3 {
+            font-size: 1.5rem;
+            margin: 0 0 1rem 0;
+            font-weight: 700;
+        }
+        
+        .success-modal-content p {
+            margin: 0.5rem 0;
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        .success-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .success-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        body.dark-mode .success-modal-content {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        </style>
+    `;
+    
+    document.head.insertAdjacentHTML('beforeend', modalStyles);
+}
+
+// دالة لعرض رسالة النجاح المخصصة
+function showCustomSuccessMessage() {
+    const successModal = document.getElementById("successModal");
+    if (successModal) {
+        successModal.style.display = "flex";
+        setTimeout(() => {
+            successModal.classList.add("show");
+        }, 10);
+    }
+}
+
+// دالة لإخفاء رسالة النجاح المخصصة
+function hideCustomSuccessMessage() {
+    const successModal = document.getElementById("successModal");
+    if (successModal) {
+        successModal.classList.remove("show");
+        setTimeout(() => {
+            successModal.style.display = "none";
+        }, 300);
+    }
+}
 
 // إضافة العناصر العائمة (Floating Elements)
 function createFloatingElements() {
