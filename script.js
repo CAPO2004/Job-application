@@ -125,7 +125,7 @@ document.getElementById("employmentForm").addEventListener("submit", async funct
             formData.append("cv_file", cvFile.files[0]);
         }
 
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxe7kL-6WB1GKwTJE9n5FzIo_CLN_bJZnwLFxlv69GphPSI2fUaQs0NW67HpOqfmNMo/exec"; 
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxEbCCNXImtXqSgRAsviRXO8FdAViywCdZKcz7YQUm2yyMzIapN-g0fibZCHypvLvWo/exec"; 
 
         // Send FormData directly for multipart/form-data
         const response = await fetch(WEB_APP_URL, {
