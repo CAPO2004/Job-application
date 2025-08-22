@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-// Form validation and submission - FINAL VERSION with file upload
+// Form validation and submission
 document.getElementById("employmentForm").addEventListener("submit", async function(e) {
     e.preventDefault();
     
@@ -136,29 +136,28 @@ document.getElementById("employmentForm").addEventListener("submit", async funct
             formData.append("cv_file", cvFile.files[0]);
         }
 
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwBcKK_7bdxe_HlEhZ0yFHN2akqrEWc-6yrAfgzlXSKQJ98DU2rWWom_ikeZCr2IHIl/exec"; 
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbztL1ER-JdR7asLVpaWSPtst7jlkPKvAChDj7cgyj_J6e-N5gSxm79xHjupCoYGmk8Y/exec"; 
 
-        // Send FormData directly for multipart/form-data
         const response = await fetch(WEB_APP_URL, {
             method: "POST",
-            // mode: "no-cors", // Keep no-cors for now to avoid CORS issues, will handle response differently
-            cache: "no-cache",
-            body: formData, // FormData automatically sets Content-Type to multipart/form-data
-            redirect: "follow"
-        });
+            body: formData,
+        } );
 
-        // We cannot directly read response.json() with no-cors, so we assume success if no network error
-        // A more robust solution would involve a proxy or a different CORS setup on GAS
-        alert("تم استلام بياناتك والسيرة الذاتية بنجاح!");
-        
-        form.reset();
-        document.getElementById("fileName").style.display = "none";
-        const checkbox = document.querySelector(".checkbox");
-        if (checkbox) checkbox.classList.remove("checked");
+        const result = await response.json();
+
+        if (result.status === "success") {
+            alert("تم استلام بياناتك والسيرة الذاتية بنجاح!");
+            form.reset();
+            document.getElementById("fileName").style.display = "none";
+            const checkbox = document.querySelector(".checkbox");
+            if (checkbox) checkbox.classList.remove("checked");
+        } else {
+            throw new Error(result.message || "حدث خطأ غير معروف.");
+        }
 
     } catch (error) {
         console.error("Error:", error);
-        alert("عذراً، حدث خطأ أثناء إرسال البيانات. يرجى المحاولة مرة أخرى.");
+        alert(`عذراً، حدث خطأ أثناء إرسال البيانات: ${error.message}`);
     } finally {
         submitButton.disabled = false;
         submitButton.innerHTML = originalButtonText;
@@ -260,4 +259,3 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
-
