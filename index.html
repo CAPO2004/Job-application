@@ -105,21 +105,22 @@
                     </div>
                 </div>
 
-                <!-- CV Upload -->
+                <!-- CV Upload Section - Modified -->
                 <div class="form-group">
-                    <label class="form-label"><i class="fas fa-file-pdf icon"></i>تحميل السيرة الذاتية<span class="required">*</span></label>
-                    <div class="upload-area" onclick="document.getElementById('cvFile').click()">
-                        <i class="fas fa-cloud-arrow-up fa-2x upload-icon"></i>
-                        <p>انقر لرفع الملف أو اسحب وأفلت</p>
-                        <p class="upload-info">PDF فقط - الحد الأقصى 5MB</p>
-                        <input type="file" id="cvFile" name="cv_file" accept=".pdf" required style="display: none;">
+                    <label class="form-label">
+                        <i class="fas fa-file-pdf icon"></i>السيرة الذاتية
+                        <span class="required">*</span>
+                    </label>
+                    <div class="upload-area-info" style="text-align: center; padding: 1rem; border: 2px dashed #e2e8f0; border-radius: 12px;">
+                        <i class="fas fa-info-circle fa-2x" style="color: #64748b; margin-bottom: 0.5rem;"></i>
+                        <p>سيتم إرسال بياناتك أولاً، ثم سيتم توجيهك لرفع سيرتك الذاتية في الخطوة التالية.</p>
+                        <!-- We keep the file input visually but don't require it for submission -->
+                        <input type="file" id="cvFile" style="display: none;">
                     </div>
-                    <div id="fileName" class="file-name" style="display: none;"></div>
-                    <div class="error">يرجى رفع السيرة الذاتية</div>
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="submit-btn"><i class="fas fa-paper-plane icon"></i>تقديم الطلب</button>
+                <button type="submit" class="submit-btn"><i class="fas fa-paper-plane icon"></i>إرسال البيانات والانتقال لرفع السيرة الذاتية</button>
             </form>
         </div>
     </div>
@@ -135,7 +136,16 @@
 
     <!-- Floating Elements -->
     <div class="floating-elements">
-        <!-- ... floating elements divs ... -->
+        <div class="floating-element"><i class="fas fa-file-alt"></i></div>
+        <div class="floating-element"><i class="fas fa-briefcase"></i></div>
+        <div class="floating-element"><i class="fas fa-user-tie"></i></div>
+        <div class="floating-element"><i class="fas fa-chart-bar"></i></div>
+        <div class="floating-element"><i class="fas fa-trophy"></i></div>
+        <div class="floating-element"><i class="fas fa-dollar-sign"></i></div>
+        <div class="floating-element"><i class="fas fa-graduation-cap"></i></div>
+        <div class="floating-element"><i class="fas fa-handshake"></i></div>
+        <div class="floating-element"><i class="fas fa-building"></i></div>
+        <div class="floating-element"><i class="fas fa-clock"></i></div>
     </div>
     
     <script src="script.js"></script>
