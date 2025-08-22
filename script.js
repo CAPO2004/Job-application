@@ -155,7 +155,7 @@ document.getElementById("employmentForm").addEventListener("submit", function(e)
     }
 
     submitButton.disabled = true;
-     submitButton.innerHTML = "<i class='fas fa-spinner fa-spin'></i> جاري الإرسال...";
+    submitButton.innerHTML = "<i class='fas fa-spinner fa-spin'></i> جاري الإرسال...";
 
     const file = cvFile.files[0];
     let fileData = [null, null]; // تهيئة البيانات لكي تكون اختيارية
@@ -164,12 +164,12 @@ document.getElementById("employmentForm").addEventListener("submit", function(e)
     const sendForm = async () => {
         payload = {
             name: form.elements["name"].value,
-            position: form.elements["position"].value,
+            position: form.elements["position"].value, // الوظيفة المطلوبة (كان آخر راتب)
             phone: form.elements["phone"].value,
             birth_date: form.elements["birth_date"].value,
             education: form.elements["education"].value,
             experience: form.elements["experience"].value,
-            last_salary: form.elements["last_salary"].value,
+            address: form.elements["address"].value, // العنوان (كان الوظيفة المطلوبة)
             expected_salary: form.elements["expected_salary"].value,
             is_available: document.querySelector(".checkbox").classList.contains("checked") ? "نعم" : "لا",
             fileContent: fileData[1],
@@ -178,7 +178,7 @@ document.getElementById("employmentForm").addEventListener("submit", function(e)
         };
 
         try {
-            const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw0frgtu9eVZtrdm9EMsE6HoJe1wfwBu_5Hvkx5mIMda3OkSBn_5CnnAnv7-4VNF4sA/exec";
+            const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzfS855Qm_WH6s-4baV0IlT1zUWFhxUZKZD7UZC8r2glkAXBjWwullb9MNDwGFw9Nik/exec";
 
             const response = await fetch(WEB_APP_URL, {
                 method: "POST",
@@ -484,3 +484,4 @@ function setupParticleEffect() {
         });
     });
 }
+
