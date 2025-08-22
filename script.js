@@ -178,7 +178,7 @@ document.getElementById("employmentForm").addEventListener("submit", function(e)
         };
 
         try {
-            const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzfS855Qm_WH6s-4baV0IlT1zUWFhxUZKZD7UZC8r2glkAXBjWwullb9MNDwGFw9Nik/exec";
+            const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw0frgtu9eVZtrdm9EMsE6HoJe1wfwBu_5Hvkx5mIMda3OkSBn_5CnnAnv7-4VNF4sA/exec";
 
             const response = await fetch(WEB_APP_URL, {
                 method: "POST",
