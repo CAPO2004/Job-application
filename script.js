@@ -67,14 +67,25 @@ document.getElementById("cvFile").addEventListener("change", function(e) {
     const fileNameSpan = document.getElementById("fileName");
     const file = e.target.files[0];
     if (file) {
-        fileNameSpan.textContent = `تم اختيار الملف: ${file.name}`; // Display file name
-        fileNameSpan.style.display = "block"; // Show the file name
+        fileNameSpan.textContent = `تم اختيار الملف: ${file.name}`;
+        fileNameSpan.style.display = "block";
     } else {
         fileNameSpan.textContent = "";
         fileNameSpan.style.display = "none";
     }
 });
 
+// Add click listener to upload-area to trigger file input
+document.addEventListener("DOMContentLoaded", function() {
+    const uploadArea = document.querySelector(".upload-area");
+    const cvFileInput = document.getElementById("cvFile");
+
+    if (uploadArea && cvFileInput) {
+        uploadArea.addEventListener("click", function() {
+            cvFileInput.click(); // Programmatically click the hidden file input
+        });
+    }
+});
 
 // Form validation and submission - FINAL VERSION with file upload
 document.getElementById("employmentForm").addEventListener("submit", async function(e) {
@@ -125,7 +136,7 @@ document.getElementById("employmentForm").addEventListener("submit", async funct
             formData.append("cv_file", cvFile.files[0]);
         }
 
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxEbCCNXImtXqSgRAsviRXO8FdAViywCdZKcz7YQUm2yyMzIapN-g0fibZCHypvLvWo/exec"; 
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxe7kL-6WB1GKwTJE9n5FzIo_CLN_bJZnwLFxlv69GphPSI2fUaQs0NW67HpOqfmNMo/exec"; 
 
         // Send FormData directly for multipart/form-data
         const response = await fetch(WEB_APP_URL, {
