@@ -105,22 +105,21 @@
                     </div>
                 </div>
 
-                <!-- CV Upload -->
+                <!-- CV Upload - تم جعله اختيارياً -->
                 <div class="form-group">
                     <label class="form-label">
                         <i class="fas fa-file-pdf icon"></i>تحميل السيرة الذاتية
-                        <span class="required">*</span>
+                        <span class="optional">(اختياري)</span>
                     </label>
                     <div class="upload-area" style="position: relative;">
                         <i class="fas fa-cloud-arrow-up fa-2x upload-icon"></i>
                         <p>انقر لرفع الملف أو اسحب وأفلت</p>
                         <p class="upload-info">PDF فقط - الحد الأقصى 5MB</p>
-                        <input type="file" id="cvFile" name="cv_file" accept=".pdf" required style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+                        <input type="file" id="cvFile" name="cv_file" accept=".pdf" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
                     </div>
                     <div id="fileName" class="file-name" style="display: none;">
                         <i class="fas fa-check-circle"></i> تم اختيار الملف
                     </div>
-                    <div class="error">يرجى رفع السيرة الذاتية</div>
                 </div>
 
                 <!-- Submit Button -->
