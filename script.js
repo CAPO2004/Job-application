@@ -86,8 +86,8 @@ document.getElementById("cvFile").addEventListener("change", function(e) {
     }
 });
 
-// Form validation and submission
-document.getElementById("employmentForm").addEventListener("submit", async function(e) {
+// Form validation and submission (Base64 VERSION)
+document.getElementById("employmentForm").addEventListener("submit", function(e) {
     e.preventDefault();
     
     const form = this;
@@ -123,37 +123,61 @@ document.getElementById("employmentForm").addEventListener("submit", async funct
     submitButton.disabled = true;
     submitButton.innerHTML = "<i class='fas fa-spinner fa-spin'></i> جاري الإرسال...";
 
-    try {
-        const formData = new FormData(form);
-        
-        formData.delete('cv_file'); 
-        formData.append('cv_file', cvFile.files[0]); 
+    const file = cvFile.files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
 
-        formData.append("is_available", document.querySelector(".checkbox").classList.contains("checked") ? "نعم" : "لا");
-        
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwdP4BWHLNVNIORQmJMQrbC817pFRfUHn0E5OUJVmo9gnyPP2JdnsEtSmzE-cidRIU/exec";
+    reader.onload = async function() {
+        const fileData = reader.result.split(','); // [0] is mime type, [1] is base64 content
 
-        const response = await fetch(WEB_APP_URL, {
-            method: "POST",
-            body: formData,
-        } );
+        const payload = {
+            name: form.elements["name"].value,
+            position: form.elements["position"].value,
+            phone: form.elements["phone"].value,
+            birth_date: form.elements["birth_date"].value,
+            education: form.elements["education"].value,
+            experience: form.elements["experience"].value,
+            last_salary: form.elements["last_salary"].value,
+            expected_salary: form.elements["expected_salary"].value,
+            is_available: document.querySelector(".checkbox").classList.contains("checked") ? "نعم" : "لا",
+            fileContent: fileData[1],
+            mimeType: file.type,
+            fileName: file.name
+        };
 
-        const result = await response.json();
+        try {
+            const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzfS855Qm_WH6s-4baV0IlT1zUWFhxUZKZD7UZC8r2glkAXBjWwullb9MNDwGFw9Nik/exec";
 
-        if (result.status === "success") {
-            alert("تم استلام بياناتك والسيرة الذاتية بنجاح!");
-            form.reset();
-            document.getElementById("fileName").style.display = "none";
-            document.querySelector(".checkbox")?.classList.remove("checked");
-        } else {
-            throw new Error(result.message || "حدث خطأ غير معروف من الخادم.");
+            const response = await fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify(payload ),
+                // Important: Set content type to text/plain for Apps Script to handle it
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            });
+
+            const result = await response.json();
+
+            if (result.status === "success") {
+                alert("تم استلام بياناتك والسيرة الذاتية بنجاح!");
+                form.reset();
+                document.getElementById("fileName").style.display = "none";
+                document.querySelector(".checkbox")?.classList.remove("checked");
+            } else {
+                throw new Error(result.message || "حدث خطأ غير معروف من الخادم.");
+            }
+
+        } catch (error) {
+            console.error("Error:", error);
+            alert(`عذراً، حدث خطأ أثناء إرسال البيانات: ${error.message}`);
+        } finally {
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
         }
+    };
 
-    } catch (error) {
-        console.error("Error:", error);
-        alert(`عذراً، حدث خطأ أثناء إرسال البيانات: ${error.message}`);
-    } finally {
+    reader.onerror = function() {
+        alert("عذراً، حدث خطأ أثناء قراءة الملف. يرجى المحاولة مرة أخرى.");
         submitButton.disabled = false;
         submitButton.innerHTML = originalButtonText;
-    }
+    };
 });
