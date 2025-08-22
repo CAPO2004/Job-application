@@ -139,7 +139,7 @@ document.getElementById("employmentForm").addEventListener("submit", async funct
         is_available: document.querySelector(".checkbox").classList.contains("checked") ? "نعم" : "لا",
     };
 
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxjwqOVq1Zy31-QvZmF9zrvx7iHaed0y2Hm5c4JGEjeHYs3d26OF8pIWeVzCud7XW0W/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz7MS49ZilzCbf7lUPQ-Zak7DKZhQbndCeMdyY-2yef5fYY40e6Af0DzS2_xlBqMFA/exec";
 
     try {
         // --- Step 1: Submit text data and get the row number ---
