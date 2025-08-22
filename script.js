@@ -144,26 +144,25 @@ document.getElementById("employmentForm").addEventListener("submit", function(e)
         }
     });
 
-    if (!cvFile.files.length) {
-        isValid = false;
-        alert("يرجى اختيار ملف السيرة الذاتية.");
-    }
+    // تم جعل حقل السيرة الذاتية اختيارياً
+    // if (!cvFile.files.length) {
+    //     isValid = false;
+    //     alert("يرجى اختيار ملف السيرة الذاتية.");
+    // }
 
     if (!isValid) {
         return;
     }
 
     submitButton.disabled = true;
-    submitButton.innerHTML = "<i class='fas fa-spinner fa-spin'></i> جاري الإرسال...";
+     submitButton.innerHTML = "<i class='fas fa-spinner fa-spin'></i> جاري الإرسال...";
 
     const file = cvFile.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
+    let fileData = [null, null]; // تهيئة البيانات لكي تكون اختيارية
+    let payload = {};
 
-    reader.onload = async function() {
-        const fileData = reader.result.split(','); // [0] is mime type, [1] is base64 content
-
-        const payload = {
+    const sendForm = async () => {
+        payload = {
             name: form.elements["name"].value,
             position: form.elements["position"].value,
             phone: form.elements["phone"].value,
@@ -174,8 +173,8 @@ document.getElementById("employmentForm").addEventListener("submit", function(e)
             expected_salary: form.elements["expected_salary"].value,
             is_available: document.querySelector(".checkbox").classList.contains("checked") ? "نعم" : "لا",
             fileContent: fileData[1],
-            mimeType: file.type,
-            fileName: file.name
+            mimeType: fileData[0] ? fileData[0].split(':')[1].split(';')[0] : null,
+            fileName: file ? file.name : null
         };
 
         try {
@@ -207,11 +206,23 @@ document.getElementById("employmentForm").addEventListener("submit", function(e)
         }
     };
 
-    reader.onerror = function() {
-        alert("عذراً، حدث خطأ أثناء قراءة الملف. يرجى المحاولة مرة أخرى.");
-        submitButton.disabled = false;
-        submitButton.innerHTML = originalButtonText;
-    };
+    if (file) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+
+        reader.onload = function() {
+            fileData = reader.result.split(","); // [0] is mime type, [1] is base64 content
+            sendForm();
+        };
+
+        reader.onerror = function() {
+            alert("عذراً، حدث خطأ أثناء قراءة الملف. يرجى المحاولة مرة أخرى.");
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
+        };
+    } else {
+        sendForm();
+    }
 });
 
 // إنشاء رسالة النجاح المخصصة
