@@ -234,9 +234,9 @@ function createSuccessModal() {
     
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     
-    // إضافة CSS للرسالة المخصصة
+    // إضافة CSS للرسالة المخصصة - مع الحفاظ على لمعة الموقع الأصلية
     const modalStyles = `
-        <style>
+        <style id="success-modal-styles">
         .success-modal {
             position: fixed;
             top: 0;
@@ -275,6 +275,7 @@ function createSuccessModal() {
             transform: scale(1);
         }
         
+        /* تأثير shimmer خاص برسالة النجاح فقط - لا يؤثر على باقي الموقع */
         .success-modal-content::before {
             content: '';
             position: absolute;
@@ -283,10 +284,12 @@ function createSuccessModal() {
             width: 200%;
             height: 200%;
             background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            animation: shimmer 2s infinite;
+            animation: successModalShimmer 2s infinite;
+            pointer-events: none;
         }
         
-        @keyframes shimmer {
+        /* تسمية مختلفة للـ keyframes لتجنب التداخل مع shimmer الأصلي */
+        @keyframes successModalShimmer {
             0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
             100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
         }
@@ -294,10 +297,10 @@ function createSuccessModal() {
         .success-icon {
             font-size: 4rem;
             margin-bottom: 1rem;
-            animation: bounce 0.6s ease-out;
+            animation: successBounce 0.6s ease-out;
         }
         
-        @keyframes bounce {
+        @keyframes successBounce {
             0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
             40% { transform: translateY(-20px); }
             60% { transform: translateY(-10px); }
