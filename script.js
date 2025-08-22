@@ -62,28 +62,16 @@ function toggleCheckbox(checkbox) {
     checkbox.classList.toggle('checked');
 }
 
-// File upload handling
+// This function is not used for submission anymore, but good for visual feedback
 document.getElementById('cvFile').addEventListener('change', function(e) {
     const file = e.target.files[0];
-    const fileNameDiv = document.getElementById('fileName');
-    
     if (file) {
-        if (file.type === 'application/pdf') {
-            if (file.size <= 5 * 1024 * 1024) {
-                fileNameDiv.style.display = 'block';
-                fileNameDiv.innerHTML = `<i class="fas fa-check-circle"></i> تم اختيار الملف: ${file.name}`;
-            } else {
-                alert('حجم الملف كبير جداً. الحد الأقصى 5MB');
-                e.target.value = '';
-            }
-        } else {
-            alert('الرجاء رفع ملف PDF فقط');
-            e.target.value = '';
-        }
+        alert("سيتم توجيهك لرفع هذا الملف بعد إرسال البيانات.");
     }
 });
 
-// Form validation and submission
+
+// Form validation and submission - FINAL VERSION
 document.getElementById('employmentForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -91,15 +79,16 @@ document.getElementById('employmentForm').addEventListener('submit', async funct
     const submitButton = form.querySelector('.submit-btn');
     const originalButtonText = submitButton.innerHTML;
 
+    // --- Validation (excluding file input) ---
     let isValid = true;
-    const requiredInputs = form.querySelectorAll('[required]');
+    const requiredInputs = form.querySelectorAll('input[required], select[required]');
     
     requiredInputs.forEach(input => {
         input.classList.remove('input-error');
         const errorDiv = input.closest('.form-group').querySelector('.error');
         if (errorDiv) errorDiv.style.display = 'none';
 
-        if (!input.value.trim() || (input.type === 'file' && input.files.length === 0)) {
+        if (!input.value.trim()) {
             isValid = false;
             input.classList.add('input-error');
             if (errorDiv) errorDiv.style.display = 'block';
@@ -107,24 +96,14 @@ document.getElementById('employmentForm').addEventListener('submit', async funct
     });
 
     if (!isValid) {
-        alert('يرجى ملء جميع الحقول المطلوبة بشكل صحيح');
+        alert('يرجى ملء جميع الحقول المطلوبة.');
         return;
     }
 
     submitButton.disabled = true;
-    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري إرسال البيانات...';
 
     try {
-        const cvFile = document.getElementById('cvFile').files[0];
-        const fileFormData = new FormData();
-        fileFormData.append('file', cvFile);
-
-        const fileUploadResponse = await fetch('https://file.io', { method: 'POST', body: fileFormData } );
-        if (!fileUploadResponse.ok) throw new Error('فشل رفع السيرة الذاتية.');
-        
-        const fileUploadResult = await fileUploadResponse.json();
-        const cvFileLink = fileUploadResult.link;
-
         const formData = new FormData(form);
         const data = {
             name: formData.get('name'),
@@ -136,13 +115,10 @@ document.getElementById('employmentForm').addEventListener('submit', async funct
             last_salary: formData.get('last_salary'),
             expected_salary: formData.get('expected_salary'),
             is_available: document.querySelector('.checkbox').classList.contains('checked') ? 'نعم' : 'لا',
-            cv_file_link: cvFileLink
+            cv_file_link: "سيتم الرفع في الخطوة التالية" // Placeholder text
         };
 
-        // ===============================================================
-        // تم وضع الرابط الأخير والنهائي الخاص بك هنا
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxEbCCNXImtXqSgRAsviRXO8FdAViywCdZKcz7YQUm2yyMzIapN-g0fibZCHypvLvWo/exec'; 
-        // ===============================================================
 
         await fetch(WEB_APP_URL, {
             method: 'POST',
@@ -153,20 +129,25 @@ document.getElementById('employmentForm').addEventListener('submit', async funct
             redirect: 'follow'
         });
 
-        alert('تم استلام طلبك بنجاح! سنقوم بالاتصال بك خلال 24 ساعة.');
+        // --- Success! Now prompt for file upload ---
+        alert('تم استلام بياناتك بنجاح! سيتم الآن فتح نافذة جديدة لرفع سيرتك الذاتية.');
+        
+        // Open a reliable file upload service in a new tab
+        window.open('https://ufile.io', '_blank' );
+
         form.reset();
-        document.getElementById('fileName').style.display = 'none';
         const checkbox = document.querySelector('.checkbox');
         if (checkbox) checkbox.classList.remove('checked');
 
     } catch (error) {
         console.error('Error:', error);
-        alert('عذراً، حدث خطأ. يرجى المحاولة مرة أخرى. ' + error.message);
+        alert('عذراً، حدث خطأ أثناء إرسال البيانات. يرجى المحاولة مرة أخرى.');
     } finally {
         submitButton.disabled = false;
         submitButton.innerHTML = originalButtonText;
     }
 });
+
 
 // Add animation to form elements on scroll
 const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
