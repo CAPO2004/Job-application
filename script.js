@@ -131,7 +131,6 @@ document.getElementById("employmentForm").addEventListener("submit", async funct
 
         formData.append("is_available", document.querySelector(".checkbox").classList.contains("checked") ? "نعم" : "لا");
         
-        // **تم وضع الرابط الجديد والصحيح هنا**
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwdP4BWHLNVNIORQmJMQrbC817pFRfUHn0E5OUJVmo9gnyPP2JdnsEtSmzE-cidRIU/exec";
 
         const response = await fetch(WEB_APP_URL, {
